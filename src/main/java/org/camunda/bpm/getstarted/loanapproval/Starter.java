@@ -1,12 +1,15 @@
 package org.camunda.bpm.getstarted.loanapproval;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
+@Named
 public class Starter implements InitializingBean {
 
-	@Autowired
+	@Inject	
 	private RuntimeService runtimeService;
 
 	@Override
