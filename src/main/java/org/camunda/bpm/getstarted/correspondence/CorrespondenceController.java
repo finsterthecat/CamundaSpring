@@ -115,6 +115,7 @@ public class CorrespondenceController {
 				task.setVariable("activityName", activityName);
 				task.setVariable("activityType", activityType);
 				task.setVariable("executionCount", executionCount);
+				task.setVariable("processId", instance.getId());
 				task.setVariable("childActivityCount", activity2.getChildActivityInstances().length);
 				tasks.add(task);
 			}
