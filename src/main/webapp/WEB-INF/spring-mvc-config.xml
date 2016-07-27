@@ -8,6 +8,6 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
         ">
-    <context:component-scan base-package="org.camunda.bpm.getstarted.loanapproval" />
+    <context:component-scan base-package="org.camunda.bpm.getstarted" />
     <mvc:annotation-driven />
 </beans>

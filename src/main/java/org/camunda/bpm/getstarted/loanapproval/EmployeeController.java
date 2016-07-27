@@ -20,13 +20,13 @@ public class EmployeeController {
 	private RuntimeService runtimeService;
     
     @RequestMapping(value = "employees/{name}", method = RequestMethod.GET, produces = "application/json")
-    @ResponseStatus( HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Employee getEmployeeInJSON(@PathVariable String name) {
         return getEmployee(name);    }
  
     @RequestMapping(value = "employees/{name}.xml", method = RequestMethod.GET, produces = "application/xml")
-    @ResponseStatus( HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Employee getEmployeeInXML(@PathVariable String name) {
     	runtimeService.startProcessInstanceByKey("loanApproval");

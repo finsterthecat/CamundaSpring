@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://bpmn.io/schema/bpmn" id="Definitions_1">
+  <process id="eCorrespondence" name="eCorrespondence" isExecutable="true">
+    <startEvent id="StartEvent_1"></startEvent>
+    <sequenceFlow id="SequenceFlow_1yjsbg7" sourceRef="StartEvent_1" targetRef="triage"></sequenceFlow>
+    <sequenceFlow id="SequenceFlow_1u415qm" sourceRef="triage" targetRef="respond"></sequenceFlow>
+    <endEvent id="EndEvent_0xu15nz"></endEvent>
+    <sequenceFlow id="SequenceFlow_1kf8qi3" sourceRef="respond" targetRef="EndEvent_0xu15nz"></sequenceFlow>
+    <userTask id="triage" name="Triage"></userTask>
+    <userTask id="respond" name="Respond"></userTask>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_eCorrespondence">
+    <bpmndi:BPMNPlane bpmnElement="eCorrespondence" id="BPMNPlane_eCorrespondence">
+      <bpmndi:BPMNShape bpmnElement="StartEvent_1" id="BPMNShape_StartEvent_1">
+        <omgdc:Bounds height="36.0" width="36.0" x="174.0" y="103.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="EndEvent_0xu15nz" id="BPMNShape_EndEvent_0xu15nz">
+        <omgdc:Bounds height="36.0" width="36.0" x="739.0" y="103.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="triage" id="BPMNShape_triage">
+        <omgdc:Bounds height="80.0" width="100.0" x="316.0" y="81.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="respond" id="BPMNShape_respond">
+        <omgdc:Bounds height="80.0" width="100.0" x="529.0" y="81.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_1yjsbg7" id="BPMNEdge_SequenceFlow_1yjsbg7">
+        <omgdi:waypoint x="210.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="316.0" y="121.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_1u415qm" id="BPMNEdge_SequenceFlow_1u415qm">
+        <omgdi:waypoint x="416.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="529.0" y="121.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_1kf8qi3" id="BPMNEdge_SequenceFlow_1kf8qi3">
+        <omgdi:waypoint x="629.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="739.0" y="121.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
