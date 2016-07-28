@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Task")
-public class Task {
+public class ECorrTask {
 
 	private String name;
 	private int caseId;

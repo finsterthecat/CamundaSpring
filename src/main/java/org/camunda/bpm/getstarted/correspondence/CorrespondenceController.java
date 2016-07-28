@@ -8,12 +8,14 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.runtime.ActivityInstance;
-import org.camunda.bpm.engine.runtime.Execution;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.getstarted.loanapproval.Employee;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +30,19 @@ public class CorrespondenceController {
 	Employee employee;
 	@Inject
 	private RuntimeService runtimeService;
+	@Inject
+	private TaskService taskService;
 
-	@RequestMapping(value = "/intake", method = RequestMethod.POST, produces = "application/json")
+	@ResponseStatus(value = HttpStatus.CONFLICT, reason = "Data integrity violation") // 409
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public void conflict() {
+		// Nothing to do
+	}
+
+	@RequestMapping(value = "/incoming", method = RequestMethod.PUT, produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public Map<String, Object> intake(@RequestBody IncomingCorrespondence incoming) {
+	public Map<String, Object> receiveIncoming(@RequestBody IncomingCorrespondence incoming) {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("clientName", incoming.getClientName());
 		variables.put("caseId", incoming.getCaseId());
@@ -45,104 +55,63 @@ public class CorrespondenceController {
 		return variables;
 	}
 
-	@RequestMapping(value = "/task/{id}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/tasks/{id}/complete", method = RequestMethod.POST, produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public Task getTaskById(@PathVariable int id) {
-		return makeTask(id, "xxxx");
-	}
-
-	@RequestMapping(value = "/tasksxxx", method = RequestMethod.GET, produces = "application/json")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public List<Task> getTasks() {
-		List<Task> tasks = new ArrayList<>();
-		List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
-				.processDefinitionKey("eCorrespondence").list();
-		System.out.println("instances count is " + instances.size());
-		for (ProcessInstance instance : instances) {
-			List<Execution> executions = runtimeService.createExecutionQuery().processInstanceId(instance.getId()).list();
-			if (executions.size() > 0) {
-				Task task  = new Task();
-				String executionId = executions.get(0).getId();
-				String clientName = (String) runtimeService.getVariable(executionId, "clientName");
-				task.setName(clientName);
-				int caseId = (int) runtimeService.getVariable(executionId, "caseId");
-				task.setCaseId(caseId);
-				int status = (int) runtimeService.getVariable(executionId, "status");
-				task.setStatus(status);
-				String subject = (String) runtimeService.getVariable(executionId, "subject");
-				task.setVariable("subject", subject);
-				String body = (String) runtimeService.getVariable(executionId, "body");
-				task.setVariable("body", body);
-				tasks.add(task);
-			}
+	public void completeTask(@PathVariable String id) {
+		Task task = taskService.createTaskQuery().taskId(id).active().singleResult();
+		if (task == null) {
+			throw new DataIntegrityViolationException("Task is not active");
 		}
-		return tasks;
+		taskService.complete(id);
 	}
 
-
-	@RequestMapping(value = "/tasks", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<Task> getTasks2() {
-		List<Task> tasks = new ArrayList<>();
-		List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
-				.processDefinitionKey("eCorrespondence").list();
-		System.out.println("instances count is " + instances.size());
-		for (ProcessInstance instance : instances) {
-			ActivityInstance activity = runtimeService.getActivityInstance(instance.getId());
-			ActivityInstance activity2 = activity.getChildActivityInstances()[0];
-			String activityName = activity2.getActivityName();
-			String activityType = activity2.getActivityType();
-			int executionCount = activity.getExecutionIds().length;
-			String[] executions = activity.getExecutionIds();
-			if (executions.length > 0) {
-				Task task  = new Task();
-				String executionId = executions[0];
-				String clientName = (String) runtimeService.getVariable(executionId, "clientName");
-				task.setName(clientName);
-				String processId = instance.getId();
-				task.setVariable("processId", processId);
-				int caseId = (int) runtimeService.getVariable(executionId, "caseId");
-				task.setCaseId(caseId);
-				int status = (int) runtimeService.getVariable(executionId, "status");
-				task.setStatus(status);
-				String subject = (String) runtimeService.getVariable(executionId, "subject");
-				task.setVariable("subject", subject);
-				String body = (String) runtimeService.getVariable(executionId, "body");
-				task.setVariable("body", body);
-				task.setVariable("activityName", activityName);
-				task.setVariable("activityType", activityType);
-				task.setVariable("executionCount", executionCount);
-				task.setVariable("processId", instance.getId());
-				task.setVariable("childActivityCount", activity2.getChildActivityInstances().length);
-				tasks.add(task);
-			}
-		}
-		return tasks;
+	public ECorrTask getTaskById(@PathVariable String id) {
+		Task task = taskService.createTaskQuery().taskId(id).singleResult();
+		return makeEcorrTask(task);
 	}
 
-	@RequestMapping(value = "/tasksstub/{fromId}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/tasks/searches", method = RequestMethod.POST, produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<Task> getTasksStub(@PathVariable int fromId) {
-		ArrayList<Task> tasks = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			tasks.add(makeTask(fromId + i, "taskName"));
+	public List<ECorrTask> searchTasks(@RequestBody TaskQueryFilter tqf) {
+		List<ECorrTask> eCorrTasks = new ArrayList<>();
+
+		//
+		// Query for all active tasks, optionally filtering by definition key
+		//
+		TaskQuery tq = taskService.createTaskQuery().active();
+		if (tqf.getTaskDefinition() != null && !tqf.getTaskDefinition().equals("all")) {
+			tq = tq.taskDefinitionKey(tqf.getTaskDefinition());
 		}
-		return tasks;
+		List<Task> tasks = tq.list();
+
+		for (Task task : tasks) {
+			eCorrTasks.add(makeEcorrTask(task));
+		}
+		return eCorrTasks;
 	}
 
-	private Task makeTask(int id, String name) {
-		Task task = new Task();
-		task.setName("taskName");
-		task.setCaseId(id);
-		task.setStatus(0);
-		long l_id = id;
-		task.setVariable("first", Long.valueOf(l_id * l_id));
-		task.setVariable("var", "value " + id);
-		return task;
+	private ECorrTask makeEcorrTask(Task task) {
+		String executionId = task.getExecutionId();
+		ECorrTask eCorrTask = new ECorrTask();
+		String clientName = (String) runtimeService.getVariable(executionId, "clientName");
+		eCorrTask.setName(clientName);
+		int caseId = (int) runtimeService.getVariable(executionId, "caseId");
+		eCorrTask.setCaseId(caseId);
+		int status = (int) runtimeService.getVariable(executionId, "status");
+		eCorrTask.setStatus(status);
+		String subject = (String) runtimeService.getVariable(executionId, "subject");
+		eCorrTask.setVariable("subject", subject);
+		String body = (String) runtimeService.getVariable(executionId, "body");
+		eCorrTask.setVariable("body", body);
+		eCorrTask.setVariable("activityName", task.getName());
+		eCorrTask.setVariable("taskId", task.getId());
+		eCorrTask.setVariable("businessKey", task.getTaskDefinitionKey());
+		return eCorrTask;
 	}
 
 }
