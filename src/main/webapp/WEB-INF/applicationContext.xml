@@ -53,6 +53,6 @@
 	<bean id="managementService" factory-bean="processEngine"
 		factory-method="getManagementService" />
 		
-    <context:component-scan base-package="org.camunda.bpm.getstarted.loanapproval" />
+    <context:component-scan base-package="org.camunda.bpm.getstarted" />
 
 </beans>

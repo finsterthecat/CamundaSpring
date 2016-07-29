@@ -11,11 +11,10 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
-import org.camunda.bpm.getstarted.loanapproval.Employee;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,22 +26,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("correspondence")
 public class CorrespondenceController {
 	@Inject
-	Employee employee;
-	@Inject
 	private RuntimeService runtimeService;
 	@Inject
 	private TaskService taskService;
-
-	@ResponseStatus(value = HttpStatus.CONFLICT, reason = "Data integrity violation") // 409
-	@ExceptionHandler(DataIntegrityViolationException.class)
-	public void conflict() {
-		// Nothing to do
-	}
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CorrespondenceController.class);
 
 	@RequestMapping(value = "/incoming", method = RequestMethod.PUT, produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> receiveIncoming(@RequestBody IncomingCorrespondence incoming) {
+		LOGGER.debug("start receiveIncoming");
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("clientName", incoming.getClientName());
 		variables.put("caseId", incoming.getCaseId());
@@ -52,6 +46,7 @@ public class CorrespondenceController {
 		variables.put("official", true);
 
 		runtimeService.startProcessInstanceByKey("eCorrespondence", variables);
+		LOGGER.debug("end receiveIncoming");
 		return variables;
 	}
 
@@ -59,18 +54,58 @@ public class CorrespondenceController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public void completeTask(@PathVariable String id) {
+		LOGGER.debug("start completeTask");
 		Task task = taskService.createTaskQuery().taskId(id).active().singleResult();
 		if (task == null) {
-			throw new DataIntegrityViolationException("Task is not active");
+			throw new IllegalStateException("ERROR: Task is not active");
 		}
 		taskService.complete(id);
+		LOGGER.debug("end completeTask");
+	}
+
+	@RequestMapping(value = "/tasks/{id}/completeResponse", method = RequestMethod.POST, produces = "application/json")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public void completeRespondTask(@PathVariable String id) {
+		LOGGER.debug("start completeTask");
+		Task task = taskService.createTaskQuery().taskId(id).active().singleResult();
+		if (task == null) {
+			throw new IllegalStateException("ERROR: Task is not active");
+		}
+		else if (!task.getTaskDefinitionKey().equals("respond")) {
+			throw new IllegalStateException("ERROR: Task must be a respond task. Instead, it is a "
+						+ task.getTaskDefinitionKey() + " task");
+		}
+		
+//		String executionId = taskService.createTaskQuery()
+//				.taskId(id)
+//				.singleResult()
+//				.getExecutionId();
+//		Map<String, Object> variables = runtimeService.getVariables(executionId);
+//
+//		@SuppressWarnings("unchecked")
+//		Map<String, Object> response  = (Map<String, Object>) variables.get("response");
+//		
+//		if (response == null) {
+//			throw new IllegalStateException("Cannot complete Response task without creating a response!");
+//		}
+//		
+//		LOGGER.info("Sending email. Subject: "
+//						+ response.get("subject")
+//						+ ", Body: " + response.get("body"));
+
+		taskService.complete(id);
+		
+		LOGGER.debug("end completeTask");
 	}
 
 	@RequestMapping(value = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public ECorrTask getTaskById(@PathVariable String id) {
+		LOGGER.debug("start getTaskById");
 		Task task = taskService.createTaskQuery().taskId(id).singleResult();
+		LOGGER.debug("end getTaskById");
 		return makeEcorrTask(task);
 	}
 
@@ -78,6 +113,7 @@ public class CorrespondenceController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<ECorrTask> searchTasks(@RequestBody TaskQueryFilter tqf) {
+		LOGGER.debug("start searchTasks");
 		List<ECorrTask> eCorrTasks = new ArrayList<>();
 
 		//
@@ -92,9 +128,32 @@ public class CorrespondenceController {
 		for (Task task : tasks) {
 			eCorrTasks.add(makeEcorrTask(task));
 		}
+		LOGGER.debug("end searchTasks");
 		return eCorrTasks;
 	}
 
+	@RequestMapping(value = "/tasks/{id}/response", method = RequestMethod.POST, produces = "application/json")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public String taskUpdatResponse(@PathVariable String id,
+									@RequestBody ResponseCorrespondence rc) {
+		LOGGER.debug("start searchTasks");
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("subject", rc.getSubject());
+		response.put("body", rc.getBody());
+		
+		String executionId = taskService.createTaskQuery()
+										.taskId(id)
+										.singleResult()
+										.getExecutionId();
+		runtimeService.setVariable(executionId, "response", response);
+
+		LOGGER.debug("end searchTasks");
+		return executionId;
+	}
+
+	@SuppressWarnings("unchecked")
 	private ECorrTask makeEcorrTask(Task task) {
 		String executionId = task.getExecutionId();
 		ECorrTask eCorrTask = new ECorrTask();
@@ -111,6 +170,12 @@ public class CorrespondenceController {
 		eCorrTask.setVariable("activityName", task.getName());
 		eCorrTask.setVariable("taskId", task.getId());
 		eCorrTask.setVariable("businessKey", task.getTaskDefinitionKey());
+		Map<String, Object> response = new HashMap<>();
+		response = (Map<String, Object>) runtimeService.getVariable(executionId, "response");
+		if (response != null) {
+			eCorrTask.setVariable("responseSubject", response.get("subject"));
+			eCorrTask.setVariable("responseBody", response.get("body"));
+		}
 		return eCorrTask;
 	}
 

@@ -1,40 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://bpmn.io/schema/bpmn" id="Definitions_1">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <process id="eCorrespondence" name="eCorrespondence" isExecutable="true">
-    <startEvent id="StartEvent_1"></startEvent>
-    <sequenceFlow id="SequenceFlow_1yjsbg7" sourceRef="StartEvent_1" targetRef="triage"></sequenceFlow>
-    <sequenceFlow id="SequenceFlow_1u415qm" sourceRef="triage" targetRef="respond"></sequenceFlow>
-    <endEvent id="EndEvent_0xu15nz"></endEvent>
-    <sequenceFlow id="SequenceFlow_1kf8qi3" sourceRef="respond" targetRef="EndEvent_0xu15nz"></sequenceFlow>
-    <userTask id="triage" name="Triage"></userTask>
-    <userTask id="respond" name="Respond"></userTask>
+    <startEvent id="StartEvent_1" />
+    <sequenceFlow id="SequenceFlow_1yjsbg7" sourceRef="StartEvent_1" targetRef="triage" />
+    <sequenceFlow id="SequenceFlow_1u415qm" sourceRef="triage" targetRef="respond" />
+    <endEvent id="EndEvent_0xu15nz">
+      <incoming>SequenceFlow_1o2jhu6</incoming>
+    </endEvent>
+    <sequenceFlow id="SequenceFlow_1kf8qi3" sourceRef="respond" targetRef="ServiceTask_0kvohtr" />
+    <userTask id="triage" name="Triage" />
+    <userTask id="respond" name="Respond">
+      <incoming>SequenceFlow_1njmccv</incoming>
+    </userTask>
+    <sequenceFlow id="SequenceFlow_14c9snk" sourceRef="ServiceTask_0kvohtr" targetRef="ExclusiveGateway_063qotq" />
+    <serviceTask id="ServiceTask_0kvohtr" name="Validate" camunda:expression="${response != null &#38;&#38; response.body != null &#38;&#38; response.body != null}" camunda:resultVariable="responseIsValid">
+      <incoming>SequenceFlow_1kf8qi3</incoming>
+      <outgoing>SequenceFlow_14c9snk</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="ExclusiveGateway_063qotq">
+      <incoming>SequenceFlow_14c9snk</incoming>
+      <outgoing>SequenceFlow_0g20npb</outgoing>
+      <outgoing>SequenceFlow_1njmccv</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="SequenceFlow_0g20npb" name="Response is Valid" sourceRef="ExclusiveGateway_063qotq" targetRef="ServiceTask_1fbj0d8">
+      <conditionExpression xsi:type="tFormalExpression">${responseIsValid}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_1njmccv" name="Response not valid" sourceRef="ExclusiveGateway_063qotq" targetRef="respond">
+      <conditionExpression xsi:type="tFormalExpression">${!responseIsValid}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_1o2jhu6" sourceRef="ServiceTask_1fbj0d8" targetRef="EndEvent_0xu15nz" />
+    <serviceTask id="ServiceTask_1fbj0d8" name="Send" camunda:delegateExpression="${sendEmailService}">
+      <incoming>SequenceFlow_0g20npb</incoming>
+      <outgoing>SequenceFlow_1o2jhu6</outgoing>
+    </serviceTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_eCorrespondence">
-    <bpmndi:BPMNPlane bpmnElement="eCorrespondence" id="BPMNPlane_eCorrespondence">
-      <bpmndi:BPMNShape bpmnElement="StartEvent_1" id="BPMNShape_StartEvent_1">
-        <omgdc:Bounds height="36.0" width="36.0" x="174.0" y="103.0"></omgdc:Bounds>
+    <bpmndi:BPMNPlane id="BPMNPlane_eCorrespondence" bpmnElement="eCorrespondence">
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <omgdc:Bounds x="302" y="103" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="275" y="139" width="90" height="20" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="EndEvent_0xu15nz" id="BPMNShape_EndEvent_0xu15nz">
-        <omgdc:Bounds height="36.0" width="36.0" x="739.0" y="103.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_0xu15nz" bpmnElement="EndEvent_0xu15nz">
+        <omgdc:Bounds x="964" y="355" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="937" y="391" width="90" height="20" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="triage" id="BPMNShape_triage">
-        <omgdc:Bounds height="80.0" width="100.0" x="316.0" y="81.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape id="BPMNShape_triage" bpmnElement="triage">
+        <omgdc:Bounds x="406" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="respond" id="BPMNShape_respond">
-        <omgdc:Bounds height="80.0" width="100.0" x="529.0" y="81.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape id="BPMNShape_respond" bpmnElement="respond">
+        <omgdc:Bounds x="582" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_1yjsbg7" id="BPMNEdge_SequenceFlow_1yjsbg7">
-        <omgdi:waypoint x="210.0" y="121.0"></omgdi:waypoint>
-        <omgdi:waypoint x="316.0" y="121.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1yjsbg7" bpmnElement="SequenceFlow_1yjsbg7">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="338" y="121" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="406" y="121" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_1u415qm" id="BPMNEdge_SequenceFlow_1u415qm">
-        <omgdi:waypoint x="416.0" y="121.0"></omgdi:waypoint>
-        <omgdi:waypoint x="529.0" y="121.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1u415qm" bpmnElement="SequenceFlow_1u415qm">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="506" y="121" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="582" y="121" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_1kf8qi3" id="BPMNEdge_SequenceFlow_1kf8qi3">
-        <omgdi:waypoint x="629.0" y="121.0"></omgdi:waypoint>
-        <omgdi:waypoint x="739.0" y="121.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1kf8qi3" bpmnElement="SequenceFlow_1kf8qi3">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="682" y="121" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="776" y="121" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_14c9snk_di" bpmnElement="SequenceFlow_14c9snk">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="876" y="121" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="957" y="121" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="794.5" y="111" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0kvohtr_di" bpmnElement="ServiceTask_0kvohtr">
+        <omgdc:Bounds x="776" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_063qotq_di" bpmnElement="ExclusiveGateway_063qotq" isMarkerVisible="true">
+        <omgdc:Bounds x="957" y="96" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="937" y="146" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0g20npb_di" bpmnElement="SequenceFlow_0g20npb">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="146" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="205" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="989.5" y="159" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1njmccv_di" bpmnElement="SequenceFlow_1njmccv">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="96" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="-34" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="632" y="-34" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="632" y="80" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="737" y="-74" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1o2jhu6_di" bpmnElement="SequenceFlow_1o2jhu6">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="285" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="355" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="937" y="310" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1fbj0d8_di" bpmnElement="ServiceTask_1fbj0d8">
+        <omgdc:Bounds x="932" y="205" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </definitions>
