@@ -46,6 +46,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		variables.put("subject", incoming.getSubject());
 		variables.put("body", incoming.getBody());
 		variables.put("official", true);
+		variables.put("response", null);
 
 		runtimeService.startProcessInstanceByKey("eCorrespondence", variables);
 		LOGGER.debug("end receiveIncoming");

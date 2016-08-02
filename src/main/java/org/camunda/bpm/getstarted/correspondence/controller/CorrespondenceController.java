@@ -43,6 +43,7 @@ public class CorrespondenceController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public void completeRespondTask(@PathVariable String id) {
+		throw new UnsupportedOperationException("completeResponse method is no longer implemented");
 	}
 
 	@RequestMapping(value = "/tasks/{id}", method = RequestMethod.GET, produces = "application/json")

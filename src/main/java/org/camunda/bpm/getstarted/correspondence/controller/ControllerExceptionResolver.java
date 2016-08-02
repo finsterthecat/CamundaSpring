@@ -1,4 +1,4 @@
-package org.camunda.bpm.getstarted.correspondence;
+package org.camunda.bpm.getstarted.correspondence.controller;
 
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
