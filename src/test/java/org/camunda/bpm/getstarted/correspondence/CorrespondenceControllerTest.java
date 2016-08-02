@@ -53,6 +53,11 @@ public class CorrespondenceControllerTest {
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 	}
 
+	/**
+	 * Test that receiveIncoming will call the service and all parameters come through correctly.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void receiveIncomingShouldReceiveIncomingAndReturnReceivedValue() throws Exception {
 		IncomingCorrespondence ic = new IncomingCorrespondence();
@@ -77,10 +82,12 @@ public class CorrespondenceControllerTest {
 				.andExpect(jsonPath("$.caseId", is(123)))
 				.andExpect(jsonPath("$.subject", is("Pick a card")));
 
+		//Expect receiveIncoming on the service is called once.
 		ArgumentCaptor<IncomingCorrespondence> captor = ArgumentCaptor.forClass(IncomingCorrespondence.class);
 		verify(correspondenceServiceMock, times(1)).receiveIncoming(captor.capture());
 		verifyNoMoreInteractions(correspondenceServiceMock);
 		
+		//Incoming Correspondence is what was passed in.
 		IncomingCorrespondence m = captor.getValue();
 		assertThat(m.getBody(), is("Body body"));
 		assertThat(m.getSubject(), is("Subject1"));
