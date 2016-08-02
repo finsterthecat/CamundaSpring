@@ -5,19 +5,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.Ordered;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
+
+import org.springframework.http.HttpStatus;
 
 /**
- * Handles all Controller Exceptions. Spring uses any bean that implements HandlerExceptionResolver to handle controller exceptions.
- * Order determines the order in which the beans implementing the interface are executed. Bigger means executed first.
+ * Handles all Controller Exceptions. Spring uses any bean that implements
+ * HandlerExceptionResolver to handle controller exceptions. Order determines
+ * the order in which the beans implementing the interface are executed. Bigger
+ * means executed first.
  * 
- * @see < a href="https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc">Exception Handling in Spring MVC</a>
+ * @see <a href=
+ *      "https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc">
+ *      Exception Handling in Spring MVC</a>
  *
  */
 @Named
-public class ControllerExceptionResolver extends SimpleMappingExceptionResolver
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+public class ControllerExceptionResolver extends ResponseStatusExceptionResolver
 		implements HandlerExceptionResolver, Ordered {
 
 	public ControllerExceptionResolver() {
@@ -30,7 +38,9 @@ public class ControllerExceptionResolver extends SimpleMappingExceptionResolver
 	}
 
 	@Override
-	public ModelAndView doResolveException(HttpServletRequest req, HttpServletResponse resp, Object handler,
+	public ModelAndView doResolveException(HttpServletRequest req,
+			HttpServletResponse resp,
+			Object handler,
 			Exception ex) {
 		ModelAndView mav = super.doResolveException(req, resp, handler, ex);
 		if (mav != null) {
@@ -41,7 +51,7 @@ public class ControllerExceptionResolver extends SimpleMappingExceptionResolver
 
 	@Override
 	public int getOrder() {
-		return Integer.MAX_VALUE-1;
+		return Integer.MAX_VALUE - 1;
 	}
 
 }
