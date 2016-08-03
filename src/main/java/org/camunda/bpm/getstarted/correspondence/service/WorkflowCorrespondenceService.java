@@ -115,12 +115,6 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		return makeEcorrTasks(tasks);
 	}
 
-	private List<ECorrTask> makeEcorrTasks(List<Task> tasks) {
-		return tasks.stream()
-			.map(task -> makeEcorrTask(task))
-			.collect(Collectors.toList());
-	}
-
 	@Override
 	public List<ECorrTask> searchTasks(TaskQueryFilter tqf) {
 		LOGGER.debug("start searchTasks");
@@ -161,6 +155,11 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		return executionId;
 	}
 
+	private List<ECorrTask> makeEcorrTasks(List<Task> tasks) {
+		return tasks.stream()
+			.map(task -> makeEcorrTask(task))
+			.collect(Collectors.toList());
+	}
 
 	@SuppressWarnings("unchecked")
 	private ECorrTask makeEcorrTask(Task task) {
