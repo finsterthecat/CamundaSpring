@@ -33,6 +33,7 @@
 		<property name="databaseSchemaUpdate" value="true" />
 		<property name="jobExecutorActivate" value="false" />
 		<property name="deploymentResources" value="classpath*:*.bpmn" />
+		<property name="dbMetricsReporterActivate" value="false" />
 	</bean>
 
 	<bean id="processEngine" class="org.camunda.bpm.engine.spring.ProcessEngineFactoryBean">

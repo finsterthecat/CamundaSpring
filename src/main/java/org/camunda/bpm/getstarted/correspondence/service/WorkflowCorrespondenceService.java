@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -104,6 +105,20 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 		LOGGER.debug("end getTaskById");
 		return makeEcorrTask(task);
+	}
+
+	@Override
+	public List<ECorrTask> getTaskByCaseId(int caseId) {
+		LOGGER.debug("start getTaskByCaseId: {}", caseId);
+		List<Task> tasks = taskService.createTaskQuery().processVariableValueEquals("caseId", caseId).list();
+		LOGGER.debug("end getTaskById");
+		return makeEcorrTasks(tasks);
+	}
+
+	private List<ECorrTask> makeEcorrTasks(List<Task> tasks) {
+		return tasks.stream()
+			.map(task -> makeEcorrTask(task))
+			.collect(Collectors.toList());
 	}
 
 	@Override
