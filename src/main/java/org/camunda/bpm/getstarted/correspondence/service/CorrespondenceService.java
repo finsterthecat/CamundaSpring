@@ -20,4 +20,6 @@ public interface CorrespondenceService {
 	public List<ECorrTask> searchTasks(TaskQueryFilter tqf);
 	
 	public String updateResponse(String taskId, ResponseCorrespondence rc);
+
+	List<ECorrTask> getTaskByCaseId(int caseId);
 }
