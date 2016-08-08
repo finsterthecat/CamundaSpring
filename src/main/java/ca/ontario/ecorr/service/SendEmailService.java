@@ -1,4 +1,4 @@
-package org.camunda.bpm.getstarted.correspondence.service;
+package ca.ontario.ecorr.service;
 
 import java.util.Map;
 

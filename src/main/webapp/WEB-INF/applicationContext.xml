@@ -51,7 +51,7 @@
 		factory-method="getManagementService" />
 		
     <mvc:annotation-driven />
-    <context:component-scan base-package="org.camunda.bpm.getstarted.correspondence.controller" />
-    <context:component-scan base-package="org.camunda.bpm.getstarted.correspondence.service" />
+    <context:component-scan base-package="ca.ontario.ecorr.controller" />
+    <context:component-scan base-package="ca.ontario.ecorr.service" />
 
 </beans>

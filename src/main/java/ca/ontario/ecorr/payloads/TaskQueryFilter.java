@@ -1,4 +1,4 @@
-package org.camunda.bpm.getstarted.correspondence.payloads;
+package ca.ontario.ecorr.payloads;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
