@@ -1,15 +1,10 @@
-package org.camunda.bpm.getstarted.correspondence.controller;
+package ca.ontario.ecorr.controller;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.camunda.bpm.getstarted.correspondence.payloads.ECorrTask;
-import org.camunda.bpm.getstarted.correspondence.payloads.IncomingCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.payloads.ResponseCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.payloads.TaskQueryFilter;
-import org.camunda.bpm.getstarted.correspondence.service.CorrespondenceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import ca.ontario.ecorr.payloads.ECorrTask;
+import ca.ontario.ecorr.payloads.IncomingCorrespondence;
+import ca.ontario.ecorr.payloads.ResponseCorrespondence;
+import ca.ontario.ecorr.payloads.TaskQueryFilter;
+import ca.ontario.ecorr.service.CorrespondenceService;
 
 @Controller
 @RequestMapping("correspondence")

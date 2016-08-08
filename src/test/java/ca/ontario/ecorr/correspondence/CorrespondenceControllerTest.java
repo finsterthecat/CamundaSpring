@@ -1,4 +1,4 @@
-package org.camunda.bpm.getstarted.correspondence;
+package ca.ontario.ecorr.correspondence;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -17,9 +17,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.camunda.bpm.getstarted.TestUtil;
-import org.camunda.bpm.getstarted.correspondence.payloads.IncomingCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.service.CorrespondenceService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +30,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import ca.ontario.ecorr.payloads.IncomingCorrespondence;
+import ca.ontario.ecorr.service.CorrespondenceService;
+import ca.ontario.ecorr.util.TestUtil;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { org.camunda.bpm.getstarted.configuration.TestContext.class })
+@ContextConfiguration(classes = { ca.ontario.ecorr.config.TestContext.class })
 @WebAppConfiguration
 @ActiveProfiles("dev")
 public class CorrespondenceControllerTest {

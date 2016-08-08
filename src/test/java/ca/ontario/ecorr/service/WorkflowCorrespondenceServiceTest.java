@@ -1,21 +1,15 @@
-package org.camunda.bpm.getstarted.service;
+package ca.ontario.ecorr.service;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.camunda.bpm.getstarted.TestUtil;
-import org.camunda.bpm.getstarted.correspondence.payloads.ECorrTask;
-import org.camunda.bpm.getstarted.correspondence.payloads.IncomingCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.payloads.ResponseCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.service.CorrespondenceService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,6 +18,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import ca.ontario.ecorr.payloads.ECorrTask;
+import ca.ontario.ecorr.payloads.IncomingCorrespondence;
+import ca.ontario.ecorr.payloads.ResponseCorrespondence;
+import ca.ontario.ecorr.service.CorrespondenceService;
+import ca.ontario.ecorr.util.TestUtil;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

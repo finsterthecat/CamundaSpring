@@ -1,4 +1,4 @@
-package org.camunda.bpm.getstarted.correspondence.service;
+package ca.ontario.ecorr.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,14 +13,14 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
-import org.camunda.bpm.getstarted.correspondence.controller.CorrespondenceController;
-import org.camunda.bpm.getstarted.correspondence.payloads.ECorrTask;
-import org.camunda.bpm.getstarted.correspondence.payloads.IncomingCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.payloads.ResponseCorrespondence;
-import org.camunda.bpm.getstarted.correspondence.payloads.TaskQueryFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+
+import ca.ontario.ecorr.payloads.ECorrTask;
+import ca.ontario.ecorr.payloads.IncomingCorrespondence;
+import ca.ontario.ecorr.payloads.ResponseCorrespondence;
+import ca.ontario.ecorr.payloads.TaskQueryFilter;
 
 @Named
 @Profile("production")
@@ -35,7 +35,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		this.taskService = taskService;
 	}
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CorrespondenceController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowCorrespondenceService.class);
 	
 	@Override
 	public Map<String, Object> receiveIncoming(IncomingCorrespondence incoming) {
@@ -65,6 +65,10 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		LOGGER.debug("end completeTask");
 	}
 
+	/**
+	 * Check that response exists before completing the response task.
+	 * @deprecated
+	 */
 	@Override
 	public void completeRespondTask(String id) {
 		LOGGER.debug("start completeTask");
