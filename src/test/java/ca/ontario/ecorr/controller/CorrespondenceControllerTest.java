@@ -1,4 +1,4 @@
-package ca.ontario.ecorr.correspondence;
+package ca.ontario.ecorr.controller;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

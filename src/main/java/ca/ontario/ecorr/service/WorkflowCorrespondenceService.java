@@ -39,7 +39,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 	
 	@Override
 	public Map<String, Object> receiveIncoming(IncomingCorrespondence incoming) {
-		LOGGER.debug("start receiveIncoming");
+		LOGGER.debug("start receiveIncoming: {}", incoming);
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("clientName", incoming.getClientName());
 		variables.put("caseId", incoming.getCaseId());
@@ -56,7 +56,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	@Override
 	public void completeTask(String taskId) {
-		LOGGER.debug("start completeTask");
+		LOGGER.debug("start completeTask, id: {}", taskId);
 		Task task = taskService.createTaskQuery().taskId(taskId).active().singleResult();
 		if (task == null) {
 			throw new IllegalStateException("ERROR: Task is not active");
@@ -105,7 +105,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	@Override
 	public ECorrTask getTaskById(String taskId) {
-		LOGGER.debug("start getTaskById");
+		LOGGER.debug("start getTaskById: {}", taskId);
 		Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 		LOGGER.debug("end getTaskById");
 		return makeEcorrTask(task);
@@ -121,7 +121,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	@Override
 	public List<ECorrTask> searchTasks(TaskQueryFilter tqf) {
-		LOGGER.debug("start searchTasks");
+		LOGGER.debug("start searchTasks, filter: {}", tqf);
 		List<ECorrTask> eCorrTasks = new ArrayList<>();
 
 		//
@@ -133,7 +133,6 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		}
 		List<Task> tasks = tq.list();
 
-		//yello
 		for (Task task : tasks) {
 			eCorrTasks.add(makeEcorrTask(task));
 		}
@@ -143,7 +142,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	@Override
 	public String updateResponse(String id, ResponseCorrespondence rc) {
-		LOGGER.debug("start searchTasks");
+		LOGGER.debug("start searchTasks, id: {}, response: {}", id, rc);
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("subject", rc.getSubject());
