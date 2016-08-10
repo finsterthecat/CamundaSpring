@@ -9,7 +9,7 @@
     </encoder>
   </appender>
    
-  <logger name="org.camunda.bpm.getstarted" level="DEBUG"/>
+  <logger name="ca.ontario.ecorr" level="DEBUG"/>
  
   <root level="INFO">
     <appender-ref ref="STDOUT" />
