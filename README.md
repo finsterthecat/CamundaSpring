@@ -3,12 +3,12 @@ Simple Camunda workflow with spring beans
 
 This project is to help me learn/re-learn a few things.
 * Camunda BPMN 2.0 workflow
-* Spring MVC
+* RESTful controller using Spring MVC
 * Spring annotations
+* Spring Profiles
 * Mockito
 * Maven based builds
 * configuring SLF4J as default for all logging
-* RESTful controller using Spring MVC
 
 <code>maven clean install</code> will run a couple of unit tests:
 * exercise the rest controller using mockito mocks
