@@ -86,17 +86,24 @@ public class WorkflowCorrespondenceServiceTest {
 		
 		assertThat(newTask.getVariables().get("businessKey"), is("respond"));
 		
-		//Try to complete the task without creating a response - expect that the current task will remain respond
-		//(should have a note explaining why the task didn't complete - coming soon...)
+		//Try to complete the task without creating a response - expect that the current task will remain respond.
+		//Also, look for a note with a message regarding why the respond task did not advance
 		service.completeTask((String)newTask.getVariables().get("taskId"));
 		
-		//Should be one task, a respond task now.
+		//Should be one task, a respond task still.
 		tasks = service.getTaskByCaseId(incoming.getCaseId());
 		assertThat(tasks.size(), is(1));
 		ECorrTask newnewTask = tasks.get(0);
 		String newnewTaskId = (String) newnewTask.getVariables().get("taskId");
-		assertThat(newnewTask.getVariables().get("businessKey"), is("respond"));
+		Map<String, Object> vars = newnewTask.getVariables();
 		
+		assertThat(vars.get("businessKey"), is("respond"));
+
+		//Expecting 1 note re forgetting about the response.
+		@SuppressWarnings({ "unchecked" })
+		List<String> notes = (List<String>) vars.get("notes");
+		assertThat(notes.size(), is(1));
+		assertThat(notes.get(0), is("Hey! You forgot to create a response!"));	
 		
 		//Now create the response
 		ResponseCorrespondence rc = new ResponseCorrespondence();

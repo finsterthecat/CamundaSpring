@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -37,10 +38,18 @@ public class TestUtil {
 	 * @return byte array with JSON representation
 	 * @throws IOException
 	 */
-    public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
+    public static byte[] convertObjectToJsonBytes(Object object) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.writeValueAsBytes(object);
+        try {
+			return mapper.writeValueAsBytes(object);
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("Could not convert to JSON", e);
+		}
+    }
+    
+    public static String convertObjectToJsonString(Object object) {
+    	return new String(convertObjectToJsonBytes(object));
     }
  
     /**

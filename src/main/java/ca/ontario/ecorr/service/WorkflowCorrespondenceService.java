@@ -21,25 +21,25 @@ import ca.ontario.ecorr.payloads.ECorrTask;
 import ca.ontario.ecorr.payloads.IncomingCorrespondence;
 import ca.ontario.ecorr.payloads.ResponseCorrespondence;
 import ca.ontario.ecorr.payloads.TaskQueryFilter;
+import ca.ontario.ecorr.util.TestUtil;
 
 @Named
 @Profile("production")
 public class WorkflowCorrespondenceService implements CorrespondenceService {
 	private RuntimeService runtimeService;
 	private TaskService taskService;
-	
+
 	@Inject
-	public WorkflowCorrespondenceService(RuntimeService runtimeService,
-											TaskService taskService) {
+	public WorkflowCorrespondenceService(RuntimeService runtimeService, TaskService taskService) {
 		this.runtimeService = runtimeService;
 		this.taskService = taskService;
 	}
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowCorrespondenceService.class);
-	
+
 	@Override
 	public Map<String, Object> receiveIncoming(IncomingCorrespondence incoming) {
-		LOGGER.debug("start receiveIncoming: {}", incoming);
+		LOGGER.debug("start receiveIncoming: {}", TestUtil.convertObjectToJsonString(incoming));
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("clientName", incoming.getClientName());
 		variables.put("caseId", incoming.getCaseId());
@@ -67,6 +67,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	/**
 	 * Check that response exists before completing the response task.
+	 * 
 	 * @deprecated
 	 */
 	@Override
@@ -75,31 +76,33 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		Task task = taskService.createTaskQuery().taskId(id).active().singleResult();
 		if (task == null) {
 			throw new IllegalStateException("ERROR: Task is not active");
+		} else if (!task.getTaskDefinitionKey().equals("respond")) {
+			throw new IllegalStateException(
+					"ERROR: Task must be a respond task. Instead, it is a " + task.getTaskDefinitionKey() + " task");
 		}
-		else if (!task.getTaskDefinitionKey().equals("respond")) {
-			throw new IllegalStateException("ERROR: Task must be a respond task. Instead, it is a "
-						+ task.getTaskDefinitionKey() + " task");
-		}
-		
-//		String executionId = taskService.createTaskQuery()
-//				.taskId(id)
-//				.singleResult()
-//				.getExecutionId();
-//		Map<String, Object> variables = runtimeService.getVariables(executionId);
-//
-//		@SuppressWarnings("unchecked")
-//		Map<String, Object> response  = (Map<String, Object>) variables.get("response");
-//		
-//		if (response == null) {
-//			throw new IllegalStateException("Cannot complete Response task without creating a response!");
-//		}
-//		
-//		LOGGER.info("Sending email. Subject: "
-//						+ response.get("subject")
-//						+ ", Body: " + response.get("body"));
+
+		// String executionId = taskService.createTaskQuery()
+		// .taskId(id)
+		// .singleResult()
+		// .getExecutionId();
+		// Map<String, Object> variables =
+		// runtimeService.getVariables(executionId);
+		//
+		// @SuppressWarnings("unchecked")
+		// Map<String, Object> response = (Map<String, Object>)
+		// variables.get("response");
+		//
+		// if (response == null) {
+		// throw new IllegalStateException("Cannot complete Response task
+		// without creating a response!");
+		// }
+		//
+		// LOGGER.info("Sending email. Subject: "
+		// + response.get("subject")
+		// + ", Body: " + response.get("body"));
 
 		taskService.complete(id);
-		
+
 		LOGGER.debug("end completeTask");
 	}
 
@@ -121,7 +124,7 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	@Override
 	public List<ECorrTask> searchTasks(TaskQueryFilter tqf) {
-		LOGGER.debug("start searchTasks, filter: {}", tqf);
+		LOGGER.debug("start searchTasks, filter: {}", TestUtil.convertObjectToJsonString(tqf));
 		List<ECorrTask> eCorrTasks = new ArrayList<>();
 
 		//
@@ -142,16 +145,13 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 
 	@Override
 	public String updateResponse(String id, ResponseCorrespondence rc) {
-		LOGGER.debug("start searchTasks, id: {}, response: {}", id, rc);
+		LOGGER.debug("start searchTasks, id: {}, response: {}", id, TestUtil.convertObjectToJsonString(rc));
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("subject", rc.getSubject());
 		response.put("body", rc.getBody());
-		
-		String executionId = taskService.createTaskQuery()
-										.taskId(id)
-										.singleResult()
-										.getExecutionId();
+
+		String executionId = taskService.createTaskQuery().taskId(id).singleResult().getExecutionId();
 		runtimeService.setVariable(executionId, "response", response);
 
 		LOGGER.debug("end searchTasks");
@@ -159,12 +159,9 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 	}
 
 	private List<ECorrTask> makeEcorrTasks(List<Task> tasks) {
-		return tasks.stream()
-			.map(task -> makeEcorrTask(task))
-			.collect(Collectors.toList());
+		return tasks.stream().map(task -> makeEcorrTask(task)).collect(Collectors.toList());
 	}
 
-	@SuppressWarnings("unchecked")
 	private ECorrTask makeEcorrTask(Task task) {
 		String executionId = task.getExecutionId();
 		ECorrTask eCorrTask = new ECorrTask();
@@ -174,19 +171,17 @@ public class WorkflowCorrespondenceService implements CorrespondenceService {
 		eCorrTask.setCaseId(caseId);
 		int status = (int) runtimeService.getVariable(executionId, "status");
 		eCorrTask.setStatus(status);
-		String subject = (String) runtimeService.getVariable(executionId, "subject");
-		eCorrTask.setVariable("subject", subject);
-		String body = (String) runtimeService.getVariable(executionId, "body");
-		eCorrTask.setVariable("body", body);
+
+		Map<String, Object> vars = runtimeService.getVariables(executionId);
+		for (Map.Entry<String, Object> e : vars.entrySet()) {
+			eCorrTask.setVariable(e.getKey(), e.getValue());
+		}
+
 		eCorrTask.setVariable("activityName", task.getName());
 		eCorrTask.setVariable("taskId", task.getId());
 		eCorrTask.setVariable("businessKey", task.getTaskDefinitionKey());
-		Map<String, Object> response = new HashMap<>();
-		response = (Map<String, Object>) runtimeService.getVariable(executionId, "response");
-		if (response != null) {
-			eCorrTask.setVariable("responseSubject", response.get("subject"));
-			eCorrTask.setVariable("responseBody", response.get("body"));
-		}
+
+		LOGGER.info("ECorrTask: {}", TestUtil.convertObjectToJsonString(eCorrTask));
 		return eCorrTask;
 	}
 

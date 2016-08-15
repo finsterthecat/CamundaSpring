@@ -10,7 +10,7 @@
     <sequenceFlow id="SequenceFlow_1kf8qi3" sourceRef="respond" targetRef="ServiceTask_0kvohtr" />
     <userTask id="triage" name="Triage" />
     <userTask id="respond" name="Respond">
-      <incoming>SequenceFlow_1njmccv</incoming>
+      <incoming>SequenceFlow_0njlvox</incoming>
     </userTask>
     <sequenceFlow id="SequenceFlow_14c9snk" sourceRef="ServiceTask_0kvohtr" targetRef="ExclusiveGateway_063qotq" />
     <serviceTask id="ServiceTask_0kvohtr" name="Validate" camunda:expression="${response != null &#38;&#38; response.body != null &#38;&#38; response.body != null}" camunda:resultVariable="responseIsValid">
@@ -25,13 +25,23 @@
     <sequenceFlow id="SequenceFlow_0g20npb" name="Response is Valid" sourceRef="ExclusiveGateway_063qotq" targetRef="ServiceTask_1fbj0d8">
       <conditionExpression xsi:type="tFormalExpression">${responseIsValid}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_1njmccv" name="Response not valid" sourceRef="ExclusiveGateway_063qotq" targetRef="respond">
+    <sequenceFlow id="SequenceFlow_1njmccv" name="Response not valid" sourceRef="ExclusiveGateway_063qotq" targetRef="ServiceTask_1cdqjx7">
       <conditionExpression xsi:type="tFormalExpression">${!responseIsValid}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="SequenceFlow_1o2jhu6" sourceRef="ServiceTask_1fbj0d8" targetRef="EndEvent_0xu15nz" />
     <serviceTask id="ServiceTask_1fbj0d8" name="Send" camunda:delegateExpression="${sendEmailService}">
       <incoming>SequenceFlow_0g20npb</incoming>
       <outgoing>SequenceFlow_1o2jhu6</outgoing>
+    </serviceTask>
+    <sequenceFlow id="SequenceFlow_0njlvox" sourceRef="ServiceTask_1cdqjx7" targetRef="respond" />
+    <serviceTask id="ServiceTask_1cdqjx7" name="Add Rejection Note" camunda:delegateExpression="${addNoteService}">
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="noteText">Hey! You forgot to create a response!</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
+      <incoming>SequenceFlow_1njmccv</incoming>
+      <outgoing>SequenceFlow_0njlvox</outgoing>
     </serviceTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_eCorrespondence">
@@ -92,10 +102,9 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1njmccv_di" bpmnElement="SequenceFlow_1njmccv">
         <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="96" />
         <omgdi:waypoint xsi:type="omgdc:Point" x="982" y="-34" />
-        <omgdi:waypoint xsi:type="omgdc:Point" x="632" y="-34" />
-        <omgdi:waypoint xsi:type="omgdc:Point" x="632" y="80" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="856" y="-34" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="737" y="-74" width="90" height="20" />
+          <omgdc:Bounds x="884" y="-66" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1o2jhu6_di" bpmnElement="SequenceFlow_1o2jhu6">
@@ -107,6 +116,17 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_1fbj0d8_di" bpmnElement="ServiceTask_1fbj0d8">
         <omgdc:Bounds x="932" y="205" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0njlvox_di" bpmnElement="SequenceFlow_0njlvox">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="756" y="-34" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="632" y="-34" />
+        <omgdi:waypoint xsi:type="omgdc:Point" x="632" y="80" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="649" y="-44" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1cdqjx7_di" bpmnElement="ServiceTask_1cdqjx7">
+        <omgdc:Bounds x="756" y="-74" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
